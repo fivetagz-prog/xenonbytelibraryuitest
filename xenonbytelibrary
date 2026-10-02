@@ -1,0 +1,606 @@
+return function(C0)
+local player = game:GetService("Players").LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local GuiService = game:GetService("GuiService")
+local camera = workspace.CurrentCamera
+assert(player, "XenonByteLibrary chi co the chay mot lan o phia client")
+local playerGui = player:WaitForChild("PlayerGui")
+
+local ROOTGUINAME = "Settings"
+local LAUNCHERGUINAME = "XenonByteLeftCenter"
+local OWNERATTRIBUTE = "XenonByteLibraryOwned"
+local parent = CoreGui
+local parentName = "CoreGui"
+do
+    local hiddenOk, hiddenParent = pcall(function()
+        return gethui()
+    end)
+    if hiddenOk and typeof(hiddenParent) == "Instance" then
+        parent = hiddenParent
+        parentName = "HiddenUI"
+    end
+
+    local ok, problem = pcall(function()
+        local probe = Instance.new("ScreenGui")
+        probe.Name = "XenonByteLibraryUIProbe"
+        probe.Parent = parent
+        probe:Destroy()
+    end)
+    if not ok then
+        error(
+            "XenonByteLibrary requires write access to "
+                .. parentName
+                .. "; PlayerGui fallback is disabled: "
+                .. tostring(problem),
+            0
+        )
+    end
+end
+
+local cleanupNames = {
+    [ROOTGUINAME] = true,
+    [LAUNCHERGUINAME] = true,
+    XenonByteLibrarySettings = true,
+    XenonByteLibraryLauncher = true,
+}
+local function cleanupOldUiScreens(excludedRoot, excludedLauncher)
+    for _, old in ipairs(parent:GetChildren()) do
+        if old ~= excludedRoot
+            and old ~= excludedLauncher
+            and old:IsA("ScreenGui")
+            and cleanupNames[old.Name]
+        then
+            local restorePosition = old:GetAttribute(
+                "HudRestorePosition"
+            )
+            local hiddenByLibrary = old:GetAttribute(
+                "LeftCenterHiddenByLibrary"
+            ) == true
+            local screenDisabledByLibrary = old:GetAttribute(
+                "LeftCenterScreenDisabledByLibrary"
+            ) == true
+            if typeof(restorePosition) == "UDim2"
+                or hiddenByLibrary
+                or screenDisabledByLibrary
+            then
+                local oldLeftCenterScreen = playerGui:FindFirstChild(
+                    "LeftCenter"
+                )
+                local oldLeftCenter = oldLeftCenterScreen
+                    and oldLeftCenterScreen:FindFirstChild("LeftCenter")
+                if oldLeftCenter then
+                    if typeof(restorePosition) == "UDim2" then
+                        while restorePosition.X.Scale <= -0.5 do
+                            restorePosition = UDim2.new(
+                                restorePosition.X.Scale + 1,
+                                restorePosition.X.Offset,
+                                restorePosition.Y.Scale,
+                                restorePosition.Y.Offset
+                            )
+                        end
+                        oldLeftCenter.Position = restorePosition
+                    end
+                    if hiddenByLibrary then
+                        oldLeftCenter.Visible = true
+                    end
+                end
+                if screenDisabledByLibrary
+                    and oldLeftCenterScreen
+                    and oldLeftCenterScreen:IsA("ScreenGui")
+                then
+                    oldLeftCenterScreen.Enabled = true
+                end
+            end
+            old:Destroy()
+        end
+    end
+end
+cleanupOldUiScreens()
+
+local function setProperty(instance, key, value)
+    instance[key] = value
+end
+local objects = {}
+
+objects.obj1 = Instance.new("ScreenGui")
+pcall(setProperty, objects.obj1, "Name", ROOTGUINAME)
+pcall(setProperty, objects.obj1, "Archivable", true)
+objects.obj1:SetAttribute("MenuSize", UDim2.new(0.45,0,0.55,0))
+objects.obj1:SetAttribute(OWNERATTRIBUTE, true)
+objects.obj1.Parent = parent
+
+objects.obj2 = Instance.new("Frame")
+pcall(setProperty, objects.obj2, "Name", "Frame")
+pcall(setProperty, objects.obj2, "Archivable", true)
+pcall(setProperty, objects.obj2, "Visible", true)
+pcall(setProperty, objects.obj2, "Active", false)
+pcall(setProperty, objects.obj2, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj2, "BackgroundColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj2, "BackgroundTransparency", 0.4)
+pcall(setProperty, objects.obj2, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj2, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj2, "ClipsDescendants", false)
+pcall(setProperty, objects.obj2, "Position", UDim2.new(0.5,0,0.475,0))
+pcall(setProperty, objects.obj2, "Rotation", 0)
+pcall(setProperty, objects.obj2, "Selectable", false)
+pcall(setProperty, objects.obj2, "SelectionOrder", 0)
+pcall(setProperty, objects.obj2, "Size", UDim2.new(0.45,0,0.55,0))
+pcall(setProperty, objects.obj2, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj2, "ZIndex", 1)
+pcall(setProperty, objects.obj2, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj2, "LayoutOrder", 0)
+objects.obj2.Parent = objects.obj1
+
+objects.obj3 = Instance.new("UIStroke")
+pcall(setProperty, objects.obj3, "Name", "UIStroke")
+pcall(setProperty, objects.obj3, "Archivable", true)
+pcall(setProperty, objects.obj3, "ApplyStrokeMode", Enum.ApplyStrokeMode.Border)
+pcall(setProperty, objects.obj3, "Color", Color3.fromRGB(0, 255, 255))
+pcall(setProperty, objects.obj3, "Enabled", true)
+pcall(setProperty, objects.obj3, "LineJoinMode", Enum.LineJoinMode.Round)
+pcall(setProperty, objects.obj3, "Thickness", 0.008)
+pcall(setProperty, objects.obj3, "Transparency", 0)
+objects.obj3.Parent = objects.obj2
+
+objects.obj4 = Instance.new("Frame")
+pcall(setProperty, objects.obj4, "Name", "Top")
+pcall(setProperty, objects.obj4, "Archivable", true)
+pcall(setProperty, objects.obj4, "Visible", true)
+pcall(setProperty, objects.obj4, "Active", false)
+pcall(setProperty, objects.obj4, "AnchorPoint", Vector2.new(0.5,0))
+pcall(setProperty, objects.obj4, "BackgroundColor3", Color3.fromRGB(0, 200, 255))
+pcall(setProperty, objects.obj4, "BackgroundTransparency", 0)
+pcall(setProperty, objects.obj4, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj4, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj4, "ClipsDescendants", false)
+pcall(setProperty, objects.obj4, "Position", UDim2.new(0.5,0,0,0))
+pcall(setProperty, objects.obj4, "Rotation", 0)
+pcall(setProperty, objects.obj4, "Selectable", false)
+pcall(setProperty, objects.obj4, "SelectionOrder", 0)
+pcall(setProperty, objects.obj4, "Size", UDim2.new(1,0,0.135,0))
+pcall(setProperty, objects.obj4, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj4, "ZIndex", 1)
+pcall(setProperty, objects.obj4, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj4, "LayoutOrder", 0)
+objects.obj4.Parent = objects.obj2
+
+objects.obj5 = Instance.new("UIStroke")
+pcall(setProperty, objects.obj5, "Name", "UIStroke")
+pcall(setProperty, objects.obj5, "Archivable", true)
+pcall(setProperty, objects.obj5, "ApplyStrokeMode", Enum.ApplyStrokeMode.Border)
+pcall(setProperty, objects.obj5, "Color", Color3.fromRGB(0, 180, 220))
+pcall(setProperty, objects.obj5, "Enabled", true)
+pcall(setProperty, objects.obj5, "LineJoinMode", Enum.LineJoinMode.Round)
+pcall(setProperty, objects.obj5, "Thickness", 0.06)
+pcall(setProperty, objects.obj5, "Transparency", 0)
+objects.obj5.Parent = objects.obj4
+
+objects.obj6 = Instance.new("Frame")
+pcall(setProperty, objects.obj6, "Name", "Color")
+pcall(setProperty, objects.obj6, "Archivable", true)
+pcall(setProperty, objects.obj6, "Visible", true)
+pcall(setProperty, objects.obj6, "Active", false)
+pcall(setProperty, objects.obj6, "AnchorPoint", Vector2.new(0.5,0))
+pcall(setProperty, objects.obj6, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj6, "BackgroundTransparency", 0)
+pcall(setProperty, objects.obj6, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj6, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj6, "ClipsDescendants", false)
+pcall(setProperty, objects.obj6, "Position", UDim2.new(0.5,0,0,0))
+pcall(setProperty, objects.obj6, "Rotation", 0)
+pcall(setProperty, objects.obj6, "Selectable", false)
+pcall(setProperty, objects.obj6, "SelectionOrder", 0)
+pcall(setProperty, objects.obj6, "Size", UDim2.new(1,0,0.88,0))
+pcall(setProperty, objects.obj6, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj6, "ZIndex", 1)
+pcall(setProperty, objects.obj6, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj6, "LayoutOrder", 0)
+objects.obj6.Parent = objects.obj4
+
+objects.obj7 = Instance.new("Frame")
+pcall(setProperty, objects.obj7, "Name", "Transparent")
+pcall(setProperty, objects.obj7, "Archivable", true)
+pcall(setProperty, objects.obj7, "Visible", true)
+pcall(setProperty, objects.obj7, "Active", false)
+pcall(setProperty, objects.obj7, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj7, "BackgroundColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj7, "BackgroundTransparency", 0.9)
+pcall(setProperty, objects.obj7, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj7, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj7, "ClipsDescendants", false)
+pcall(setProperty, objects.obj7, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj7, "Rotation", 0)
+pcall(setProperty, objects.obj7, "Selectable", false)
+pcall(setProperty, objects.obj7, "SelectionOrder", 0)
+pcall(setProperty, objects.obj7, "Size", UDim2.new(0.988,0,0.87,0))
+pcall(setProperty, objects.obj7, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj7, "ZIndex", 1)
+pcall(setProperty, objects.obj7, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj7, "LayoutOrder", 0)
+objects.obj7.Parent = objects.obj6
+
+objects.obj8 = Instance.new("ImageLabel")
+pcall(setProperty, objects.obj8, "Name", "Pattern")
+pcall(setProperty, objects.obj8, "Archivable", true)
+pcall(setProperty, objects.obj8, "Visible", true)
+pcall(setProperty, objects.obj8, "Active", false)
+pcall(setProperty, objects.obj8, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj8, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj8, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj8, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj8, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj8, "ClipsDescendants", false)
+pcall(setProperty, objects.obj8, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj8, "Rotation", 0)
+pcall(setProperty, objects.obj8, "Selectable", false)
+pcall(setProperty, objects.obj8, "SelectionOrder", 0)
+pcall(setProperty, objects.obj8, "Size", UDim2.new(1,0,1,0))
+pcall(setProperty, objects.obj8, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj8, "ZIndex", 1)
+pcall(setProperty, objects.obj8, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj8, "LayoutOrder", 0)
+pcall(setProperty, objects.obj8, "Image", "")
+pcall(setProperty, objects.obj8, "ImageColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj8, "ImageTransparency", 0.5)
+pcall(setProperty, objects.obj8, "ScaleType", Enum.ScaleType.Tile)
+pcall(setProperty, objects.obj8, "SliceCenter", Rect.new(0,0,0,0))
+pcall(setProperty, objects.obj8, "SliceScale", 1)
+pcall(setProperty, objects.obj8, "TileSize", UDim2.new(0.15,0,2,0))
+pcall(setProperty, objects.obj8, "ResampleMode", Enum.ResamplerMode.Default)
+objects.obj8.Parent = objects.obj7
+
+objects.obj9 = Instance.new("TextLabel")
+pcall(setProperty, objects.obj9, "Name", "Label")
+pcall(setProperty, objects.obj9, "Archivable", true)
+pcall(setProperty, objects.obj9, "Visible", true)
+pcall(setProperty, objects.obj9, "Active", false)
+pcall(setProperty, objects.obj9, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj9, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj9, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj9, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj9, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj9, "ClipsDescendants", false)
+pcall(setProperty, objects.obj9, "Position", UDim2.new(0.568,0,0.5,0))
+pcall(setProperty, objects.obj9, "Rotation", 0)
+pcall(setProperty, objects.obj9, "Selectable", false)
+pcall(setProperty, objects.obj9, "SelectionOrder", 0)
+pcall(setProperty, objects.obj9, "Size", UDim2.new(0.862,0,0.75,0))
+pcall(setProperty, objects.obj9, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj9, "ZIndex", 6)
+pcall(setProperty, objects.obj9, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj9, "LayoutOrder", 0)
+pcall(setProperty, objects.obj9, "Text", "XenonByte Hub")
+pcall(setProperty, objects.obj9, "TextColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj9, "TextTransparency", 0)
+pcall(setProperty, objects.obj9, "TextStrokeColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj9, "TextStrokeTransparency", 1)
+pcall(setProperty, objects.obj9, "TextSize", 14)
+pcall(setProperty, objects.obj9, "TextScaled", true)
+pcall(setProperty, objects.obj9, "TextWrapped", true)
+pcall(setProperty, objects.obj9, "TextXAlignment", Enum.TextXAlignment.Left)
+pcall(setProperty, objects.obj9, "TextYAlignment", Enum.TextYAlignment.Center)
+pcall(setProperty, objects.obj9, "Font", Enum.Font.FredokaOne)
+pcall(setProperty, objects.obj9, "RichText", false)
+pcall(setProperty, objects.obj9, "LineHeight", 1)
+pcall(setProperty, objects.obj9, "MaxVisibleGraphemes", -1)
+objects.obj9.Parent = objects.obj6
+
+objects.obj10 = Instance.new("UIStroke")
+pcall(setProperty, objects.obj10, "Name", "UIStroke")
+pcall(setProperty, objects.obj10, "Archivable", true)
+pcall(setProperty, objects.obj10, "ApplyStrokeMode", Enum.ApplyStrokeMode.Contextual)
+pcall(setProperty, objects.obj10, "Color", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj10, "Enabled", true)
+pcall(setProperty, objects.obj10, "LineJoinMode", Enum.LineJoinMode.Round)
+pcall(setProperty, objects.obj10, "Thickness", 0.08)
+pcall(setProperty, objects.obj10, "Transparency", 0)
+objects.obj10.Parent = objects.obj9
+
+objects.obj11 = Instance.new("UIGradient")
+pcall(setProperty, objects.obj11, "Name", "UIGradient")
+pcall(setProperty, objects.obj11, "Archivable", true)
+pcall(setProperty, objects.obj11, "Color", ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+}))
+pcall(setProperty, objects.obj11, "Enabled", true)
+pcall(setProperty, objects.obj11, "Offset", Vector2.new(0,0))
+pcall(setProperty, objects.obj11, "Rotation", 90)
+pcall(setProperty, objects.obj11, "Transparency", NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(1,0,0)}))
+objects.obj11.Parent = objects.obj6
+
+objects.obj12 = Instance.new("ImageLabel")
+pcall(setProperty, objects.obj12, "Name", "Icon")
+pcall(setProperty, objects.obj12, "Archivable", true)
+pcall(setProperty, objects.obj12, "Visible", true)
+pcall(setProperty, objects.obj12, "Active", false)
+pcall(setProperty, objects.obj12, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj12, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj12, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj12, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj12, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj12, "ClipsDescendants", false)
+pcall(setProperty, objects.obj12, "Position", UDim2.new(0.067,0,0.45,0))
+pcall(setProperty, objects.obj12, "Rotation", 0)
+pcall(setProperty, objects.obj12, "Selectable", false)
+pcall(setProperty, objects.obj12, "SelectionOrder", 0)
+pcall(setProperty, objects.obj12, "Size", UDim2.new(0.117,0,1.183,0))
+pcall(setProperty, objects.obj12, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj12, "ZIndex", 4)
+pcall(setProperty, objects.obj12, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj12, "LayoutOrder", 0)
+pcall(setProperty, objects.obj12, "Image", "rbxassetid://73769017245304")
+pcall(setProperty, objects.obj12, "ImageColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj12, "ImageTransparency", 0)
+pcall(setProperty, objects.obj12, "ScaleType", Enum.ScaleType.Fit)
+pcall(setProperty, objects.obj12, "SliceCenter", Rect.new(0,0,0,0))
+pcall(setProperty, objects.obj12, "SliceScale", 1)
+pcall(setProperty, objects.obj12, "TileSize", UDim2.new(0,60,0,60))
+pcall(setProperty, objects.obj12, "ResampleMode", Enum.ResamplerMode.Default)
+objects.obj12.Parent = objects.obj4
+
+objects.obj13 = Instance.new("UIAspectRatioConstraint")
+pcall(setProperty, objects.obj13, "Name", "UIAspectRatioConstraint")
+pcall(setProperty, objects.obj13, "Archivable", true)
+pcall(setProperty, objects.obj13, "AspectRatio", 1)
+pcall(setProperty, objects.obj13, "AspectType", Enum.AspectType.FitWithinMaxSize)
+pcall(setProperty, objects.obj13, "DominantAxis", Enum.DominantAxis.Width)
+objects.obj13.Parent = objects.obj12
+
+objects.obj14 = Instance.new("TextButton")
+pcall(setProperty, objects.obj14, "Name", "Close")
+pcall(setProperty, objects.obj14, "Archivable", true)
+pcall(setProperty, objects.obj14, "Visible", true)
+pcall(setProperty, objects.obj14, "Active", true)
+pcall(setProperty, objects.obj14, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj14, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj14, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj14, "BorderColor3", Color3.fromRGB(27,42,53))
+pcall(setProperty, objects.obj14, "BorderSizePixel", 1)
+pcall(setProperty, objects.obj14, "ClipsDescendants", false)
+pcall(setProperty, objects.obj14, "Position", UDim2.new(0.955,0,0.434,0))
+pcall(setProperty, objects.obj14, "Rotation", 0)
+pcall(setProperty, objects.obj14, "Selectable", true)
+pcall(setProperty, objects.obj14, "SelectionOrder", 0)
+pcall(setProperty, objects.obj14, "Size", UDim2.new(0.066,0,0.659,0))
+pcall(setProperty, objects.obj14, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj14, "ZIndex", 99)
+pcall(setProperty, objects.obj14, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj14, "LayoutOrder", 1)
+pcall(setProperty, objects.obj14, "Text", "")
+pcall(setProperty, objects.obj14, "TextColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj14, "TextTransparency", 0)
+pcall(setProperty, objects.obj14, "TextStrokeColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj14, "TextStrokeTransparency", 1)
+pcall(setProperty, objects.obj14, "TextSize", 14)
+pcall(setProperty, objects.obj14, "TextScaled", false)
+pcall(setProperty, objects.obj14, "TextWrapped", false)
+pcall(setProperty, objects.obj14, "TextXAlignment", Enum.TextXAlignment.Center)
+pcall(setProperty, objects.obj14, "TextYAlignment", Enum.TextYAlignment.Center)
+pcall(setProperty, objects.obj14, "Font", Enum.Font.SourceSans)
+pcall(setProperty, objects.obj14, "RichText", false)
+pcall(setProperty, objects.obj14, "LineHeight", 1)
+pcall(setProperty, objects.obj14, "AutoButtonColor", true)
+pcall(setProperty, objects.obj14, "Modal", false)
+objects.obj14.Parent = objects.obj4
+
+objects.obj15 = Instance.new("UIAspectRatioConstraint")
+pcall(setProperty, objects.obj15, "Name", "UIAspectRatioConstraint")
+pcall(setProperty, objects.obj15, "Archivable", true)
+pcall(setProperty, objects.obj15, "AspectRatio", 1)
+pcall(setProperty, objects.obj15, "AspectType", Enum.AspectType.FitWithinMaxSize)
+pcall(setProperty, objects.obj15, "DominantAxis", Enum.DominantAxis.Width)
+objects.obj15.Parent = objects.obj14
+
+objects.obj16 = Instance.new("Frame")
+pcall(setProperty, objects.obj16, "Name", "Main")
+pcall(setProperty, objects.obj16, "Archivable", true)
+pcall(setProperty, objects.obj16, "Visible", true)
+pcall(setProperty, objects.obj16, "Active", false)
+pcall(setProperty, objects.obj16, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj16, "BackgroundColor3", Color3.fromRGB(0, 180, 220))
+pcall(setProperty, objects.obj16, "BackgroundTransparency", 0)
+pcall(setProperty, objects.obj16, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj16, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj16, "ClipsDescendants", false)
+pcall(setProperty, objects.obj16, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj16, "Rotation", 0)
+pcall(setProperty, objects.obj16, "Selectable", false)
+pcall(setProperty, objects.obj16, "SelectionOrder", 0)
+pcall(setProperty, objects.obj16, "Size", UDim2.new(1,0,1,0))
+pcall(setProperty, objects.obj16, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj16, "ZIndex", 1)
+pcall(setProperty, objects.obj16, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj16, "LayoutOrder", 0)
+objects.obj16.Parent = objects.obj14
+
+objects.obj17 = Instance.new("Frame")
+pcall(setProperty, objects.obj17, "Name", "Color")
+pcall(setProperty, objects.obj17, "Archivable", true)
+pcall(setProperty, objects.obj17, "Visible", true)
+pcall(setProperty, objects.obj17, "Active", false)
+pcall(setProperty, objects.obj17, "AnchorPoint", Vector2.new(0.5,0))
+pcall(setProperty, objects.obj17, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj17, "BackgroundTransparency", 0)
+pcall(setProperty, objects.obj17, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj17, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj17, "ClipsDescendants", false)
+pcall(setProperty, objects.obj17, "Position", UDim2.new(0.5,0,0,0))
+pcall(setProperty, objects.obj17, "Rotation", 0)
+pcall(setProperty, objects.obj17, "Selectable", false)
+pcall(setProperty, objects.obj17, "SelectionOrder", 0)
+pcall(setProperty, objects.obj17, "Size", UDim2.new(1,0,0.9,0))
+pcall(setProperty, objects.obj17, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj17, "ZIndex", 1)
+pcall(setProperty, objects.obj17, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj17, "LayoutOrder", 0)
+objects.obj17.Parent = objects.obj16
+
+objects.obj18 = Instance.new("Frame")
+pcall(setProperty, objects.obj18, "Name", "Transparent")
+pcall(setProperty, objects.obj18, "Archivable", true)
+pcall(setProperty, objects.obj18, "Visible", true)
+pcall(setProperty, objects.obj18, "Active", false)
+pcall(setProperty, objects.obj18, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj18, "BackgroundColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj18, "BackgroundTransparency", 0.9)
+pcall(setProperty, objects.obj18, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj18, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj18, "ClipsDescendants", false)
+pcall(setProperty, objects.obj18, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj18, "Rotation", 0)
+pcall(setProperty, objects.obj18, "Selectable", false)
+pcall(setProperty, objects.obj18, "SelectionOrder", 0)
+pcall(setProperty, objects.obj18, "Size", UDim2.new(0.96,0,0.88,0))
+pcall(setProperty, objects.obj18, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj18, "ZIndex", 1)
+pcall(setProperty, objects.obj18, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj18, "LayoutOrder", 0)
+objects.obj18.Parent = objects.obj17
+
+objects.obj19 = Instance.new("ImageLabel")
+pcall(setProperty, objects.obj19, "Name", "Pattern")
+pcall(setProperty, objects.obj19, "Archivable", true)
+pcall(setProperty, objects.obj19, "Visible", true)
+pcall(setProperty, objects.obj19, "Active", false)
+pcall(setProperty, objects.obj19, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj19, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj19, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj19, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj19, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj19, "ClipsDescendants", false)
+pcall(setProperty, objects.obj19, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj19, "Rotation", 0)
+pcall(setProperty, objects.obj19, "Selectable", false)
+pcall(setProperty, objects.obj19, "SelectionOrder", 0)
+pcall(setProperty, objects.obj19, "Size", UDim2.new(1,0,1,0))
+pcall(setProperty, objects.obj19, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj19, "ZIndex", 1)
+pcall(setProperty, objects.obj19, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj19, "LayoutOrder", 0)
+pcall(setProperty, objects.obj19, "Image", "")
+pcall(setProperty, objects.obj19, "ImageColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj19, "ImageTransparency", 0.5)
+pcall(setProperty, objects.obj19, "ScaleType", Enum.ScaleType.Tile)
+pcall(setProperty, objects.obj19, "SliceCenter", Rect.new(0,0,0,0))
+pcall(setProperty, objects.obj19, "SliceScale", 1)
+pcall(setProperty, objects.obj19, "TileSize", UDim2.new(2,0,2,0))
+pcall(setProperty, objects.obj19, "ResampleMode", Enum.ResamplerMode.Default)
+objects.obj19.Parent = objects.obj18
+
+objects.obj20 = Instance.new("TextLabel")
+pcall(setProperty, objects.obj20, "Name", "Label")
+pcall(setProperty, objects.obj20, "Archivable", true)
+pcall(setProperty, objects.obj20, "Visible", true)
+pcall(setProperty, objects.obj20, "Active", false)
+pcall(setProperty, objects.obj20, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj20, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj20, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj20, "BorderColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj20, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj20, "ClipsDescendants", false)
+pcall(setProperty, objects.obj20, "Position", UDim2.new(0.5,0,0.5,0))
+pcall(setProperty, objects.obj20, "Rotation", 0)
+pcall(setProperty, objects.obj20, "Selectable", false)
+pcall(setProperty, objects.obj20, "SelectionOrder", 0)
+pcall(setProperty, objects.obj20, "Size", UDim2.new(0.95,0,0.8,0))
+pcall(setProperty, objects.obj20, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj20, "ZIndex", 6)
+pcall(setProperty, objects.obj20, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj20, "LayoutOrder", 0)
+pcall(setProperty, objects.obj20, "Text", "X")
+pcall(setProperty, objects.obj20, "TextColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj20, "TextTransparency", 0)
+pcall(setProperty, objects.obj20, "TextStrokeColor3", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj20, "TextStrokeTransparency", 1)
+pcall(setProperty, objects.obj20, "TextSize", 14)
+pcall(setProperty, objects.obj20, "TextScaled", true)
+pcall(setProperty, objects.obj20, "TextWrapped", true)
+pcall(setProperty, objects.obj20, "TextXAlignment", Enum.TextXAlignment.Center)
+pcall(setProperty, objects.obj20, "TextYAlignment", Enum.TextYAlignment.Center)
+pcall(setProperty, objects.obj20, "Font", Enum.Font.FredokaOne)
+pcall(setProperty, objects.obj20, "RichText", false)
+pcall(setProperty, objects.obj20, "LineHeight", 1)
+pcall(setProperty, objects.obj20, "MaxVisibleGraphemes", -1)
+objects.obj20.Parent = objects.obj17
+
+objects.obj21 = Instance.new("UIStroke")
+pcall(setProperty, objects.obj21, "Name", "UIStroke")
+pcall(setProperty, objects.obj21, "Archivable", true)
+pcall(setProperty, objects.obj21, "ApplyStrokeMode", Enum.ApplyStrokeMode.Contextual)
+pcall(setProperty, objects.obj21, "Color", Color3.fromRGB(0,0,0))
+pcall(setProperty, objects.obj21, "Enabled", true)
+pcall(setProperty, objects.obj21, "LineJoinMode", Enum.LineJoinMode.Round)
+pcall(setProperty, objects.obj21, "Thickness", 0.11)
+pcall(setProperty, objects.obj21, "Transparency", 0)
+objects.obj21.Parent = objects.obj20
+
+objects.obj22 = Instance.new("UIGradient")
+pcall(setProperty, objects.obj22, "Name", "UIGradient")
+pcall(setProperty, objects.obj22, "Archivable", true)
+pcall(setProperty, objects.obj22, "Color", ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+}))
+pcall(setProperty, objects.obj22, "Enabled", true)
+pcall(setProperty, objects.obj22, "Offset", Vector2.new(0,0))
+pcall(setProperty, objects.obj22, "Rotation", 90)
+pcall(setProperty, objects.obj22, "Transparency", NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(1,0,0)}))
+objects.obj22.Parent = objects.obj17
+
+objects.obj23 = Instance.new("UIStroke")
+pcall(setProperty, objects.obj23, "Name", "UIStroke")
+pcall(setProperty, objects.obj23, "Archivable", true)
+pcall(setProperty, objects.obj23, "ApplyStrokeMode", Enum.ApplyStrokeMode.Border)
+pcall(setProperty, objects.obj23, "Color", Color3.fromRGB(0, 150, 180))
+pcall(setProperty, objects.obj23, "Enabled", true)
+pcall(setProperty, objects.obj23, "LineJoinMode", Enum.LineJoinMode.Round)
+pcall(setProperty, objects.obj23, "Thickness", 0.09)
+pcall(setProperty, objects.obj23, "Transparency", 0)
+objects.obj23.Parent = objects.obj16
+
+objects.obj24 = Instance.new("UIAspectRatioConstraint")
+pcall(setProperty, objects.obj24, "Name", "UIAspectRatioConstraint")
+pcall(setProperty, objects.obj24, "Archivable", true)
+pcall(setProperty, objects.obj24, "AspectRatio", 1.34)
+pcall(setProperty, objects.obj24, "AspectType", Enum.AspectType.FitWithinMaxSize)
+pcall(setProperty, objects.obj24, "DominantAxis", Enum.DominantAxis.Width)
+objects.obj24.Parent = objects.obj2
+
+objects.obj25 = Instance.new("ScrollingFrame")
+pcall(setProperty, objects.obj25, "Name", "List")
+pcall(setProperty, objects.obj25, "Archivable", true)
+pcall(setProperty, objects.obj25, "Visible", true)
+pcall(setProperty, objects.obj25, "Active", true)
+pcall(setProperty, objects.obj25, "AnchorPoint", Vector2.new(0.5,0.5))
+pcall(setProperty, objects.obj25, "BackgroundColor3", Color3.fromRGB(255,255,255))
+pcall(setProperty, objects.obj25, "BackgroundTransparency", 1)
+pcall(setProperty, objects.obj25, "BorderColor3", Color3.fromRGB(27,42,53))
+pcall(setProperty, objects.obj25, "BorderSizePixel", 0)
+pcall(setProperty, objects.obj25, "ClipsDescendants", true)
+pcall(setProperty, objects.obj25, "Position", UDim2.new(0.5,0,0.57,0))
+pcall(setProperty, objects.obj25, "Rotation", 0)
+pcall(setProperty, objects.obj25, "Selectable", true)
+pcall(setProperty, objects.obj25, "SelectionOrder", 0)
+pcall(setProperty, objects.obj25, "Size", UDim2.new(0.99,0,0.83,0))
+pcall(setProperty, objects.obj25, "SizeConstraint", Enum.SizeConstraint.RelativeXY)
+pcall(setProperty, objects.obj25, "ZIndex", 5)
+pcall(setProperty, objects.obj25, "AutomaticSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj25, "LayoutOrder", 1)
+pcall(setProperty, objects.obj25, "CanvasPosition", Vector2.new(0,0))
+pcall(setProperty, objects.obj25, "CanvasSize", UDim2.new(0,0,0,642))
+pcall(setProperty, objects.obj25, "AutomaticCanvasSize", Enum.AutomaticSize.None)
+pcall(setProperty, objects.obj25, "ScrollBarThickness", 6)
+pcall(setProperty, objects.obj25, "ScrollBarImageColor3", Color3.fromRGB(0, 255, 255))
+pcall(setProperty, objects.obj25, "ScrollBarImageTransparency", 0)
+pcall(setProperty, objects.obj25, "ScrollingDirection", Enum.ScrollingDirection.XY)
+pcall(setProperty, objects.obj25, "ScrollingEnabled", true)
+pcall(setProperty, objects.obj25, "VerticalScrollBarInset", Enum.ScrollBarInset.None)
+pcall(setProperty, objects.obj25, "HorizontalScrollBarInset", Enum.ScrollBarInset.None)
+objects.obj25.Parent = objects.obj2
+
+return objects
+end
